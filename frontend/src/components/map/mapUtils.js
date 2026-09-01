@@ -139,98 +139,121 @@ export const OSM_STANDARD_STYLE = {
   ],
 };
 
-export const ESRI_DARK_STYLE = {
-  version: 8,
-  name: 'Esri Dark GIS',
-  sources: {
-    'esri-dark': {
-      type: 'raster',
-      tiles: [
-        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-      ],
-      tileSize: 256,
-      maxzoom: 19,
-      attribution: 'Esri, HERE, Garmin, USGS',
-    },
-    'esri-dark-reference': {
-      type: 'raster',
-      tiles: [
-        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
-      ],
-      tileSize: 256,
-      maxzoom: 19,
-    },
-  },
-  layers: [
-    {
-      id: 'esri-dark-base',
-      type: 'raster',
-      source: 'esri-dark',
-      minzoom: 0,
-      maxzoom: 19,
-    },
-    {
-      id: 'esri-dark-labels',
-      type: 'raster',
-      source: 'esri-dark-reference',
-      minzoom: 0,
-      maxzoom: 19,
-      paint: {
-        'raster-opacity': 0.85,
-      },
-    },
-  ],
-};
+export const CARTO_DARK_STYLE = OSM_STANDARD_STYLE;
+export const ESRI_DARK_STYLE = OSM_STANDARD_STYLE;
 
-export const CARTO_DARK_STYLE = ESRI_DARK_STYLE;
-
-// Professional Map Styles
-export const VECTOR_MAP_STYLES = {
-  dark: {
-    name: 'Esri Dark GIS',
-    style: ESRI_DARK_STYLE,
-    demSource: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
-  },
-  osm: {
-    name: 'Standard OpenStreetMap',
-    style: OSM_STANDARD_STYLE,
-    demSource: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
-  },
-
-  satellite: {
-    name: 'Real High-Res Satellite Hybrid',
-    style: SATELLITE_HYBRID_STYLE,
-    demSource: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
-  },
-  positron: {
-    name: 'Positron 3D Light GIS',
+// ── Interactive Map Color Themes ──────────────────────────────
+export const MAP_THEMES = [
+  {
+    id: 'dark',
+    name: 'Dark Vector GIS',
+    description: 'High-performance vector CAD radar theme',
+    colorBg: '#191C1F',
+    colorAccent: '#60A5FA',
     url: 'https://tiles.openfreemap.org/styles/positron',
-    demSource: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
+    tileUrl: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+    subdomains: 'abc',
+    buildingColor: '#E2E8F0',
+    routeColor: '#38BDF8',
+    isDark: true,
   },
-  liberty: {
-    name: 'Liberty Topographic GIS',
+  {
+    id: 'emerald',
+    name: 'Midnight Emerald',
+    description: 'Deep tactical CAD radar with emerald contrast',
+    colorBg: '#0B1D17',
+    colorAccent: '#34D399',
+    url: 'https://tiles.openfreemap.org/styles/positron',
+    tileUrl: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+    subdomains: 'abc',
+    buildingColor: '#E2E8F0',
+    routeColor: '#10B981',
+    isDark: true,
+  },
+  {
+    id: 'positron',
+    name: 'Positron Light GIS',
+    description: 'Minimalist clean architectural light view',
+    colorBg: '#F8FAFC',
+    colorAccent: '#0284C7',
+    url: 'https://tiles.openfreemap.org/styles/positron',
+    tileUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    subdomains: 'abc',
+    buildingColor: '#E2E8F0',
+    routeColor: '#0284C7',
+    isDark: false,
+  },
+  {
+    id: 'satellite',
+    name: 'Satellite Hybrid',
+    description: 'Real high-resolution aerial imagery & roads',
+    colorBg: '#050B14',
+    colorAccent: '#F59E0B',
+    style: SATELLITE_HYBRID_STYLE,
+    tileUrl: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    subdomains: 'abc',
+    buildingColor: '#E2E8F0',
+    routeColor: '#F59E0B',
+    isDark: true,
+  },
+  {
+    id: 'liberty',
+    name: 'Liberty Topo GIS',
+    description: 'Vibrant topographic vector map style',
+    colorBg: '#F1F5F9',
+    colorAccent: '#2563EB',
     url: 'https://tiles.openfreemap.org/styles/liberty',
-    demSource: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
+    tileUrl: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+    subdomains: 'abc',
+    buildingColor: '#CBD5E1',
+    routeColor: '#2563EB',
+    isDark: false,
   },
+  {
+    id: 'osm',
+    name: 'OSM Standard',
+    description: 'Classic high-resolution OpenStreetMap',
+    colorBg: '#F5F5F5',
+    colorAccent: '#166534',
+    style: OSM_STANDARD_STYLE,
+    tileUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    subdomains: 'abc',
+    buildingColor: '#D1D5DB',
+    routeColor: '#16A34A',
+    isDark: false,
+  },
+];
+
+export const getMapTheme = (themeId = 'dark') => {
+  return MAP_THEMES.find(t => t.id === themeId) || MAP_THEMES[0];
 };
+
+// Legacy compatibility object
+export const VECTOR_MAP_STYLES = MAP_THEMES.reduce((acc, theme) => {
+  acc[theme.id] = {
+    name: theme.name,
+    style: theme.style,
+    url: theme.url,
+    demSource: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
+  };
+  return acc;
+}, {});
 
 export const getStyleObjectOrUrl = (key) => {
-  const item = VECTOR_MAP_STYLES[key];
-  if (!item) return CARTO_DARK_STYLE;
-  return item.style || item.url;
+  const theme = getMapTheme(key);
+  return theme.style || theme.url || CARTO_DARK_STYLE;
 };
 
-export const get3DMapStyleUrl = () => {
+export const get3DMapStyleUrl = (key = 'dark') => {
   if (import.meta.env.VITE_3D_MAP_STYLE_URL) {
     return import.meta.env.VITE_3D_MAP_STYLE_URL;
   }
-  return CARTO_DARK_STYLE;
+  return getStyleObjectOrUrl(key);
 };
 
 export const getTerrainDemUrl = () => {
-  return import.meta.env.VITE_TERRAIN_DEM_URL || VECTOR_MAP_STYLES.positron.demSource;
+  return import.meta.env.VITE_TERRAIN_DEM_URL || 'https://demotiles.maplibre.org/terrain-tiles/tiles.json';
 };
-
 
 // 2D Leaflet Raster Fallback Providers
 export const MAP_PROVIDERS = {
@@ -250,7 +273,7 @@ export const MAP_PROVIDERS = {
   },
 };
 
-export const getTileConfig = () => {
+export const getTileConfig = (themeId = 'dark') => {
   const envUrl = import.meta.env.VITE_MAP_TILE_URL;
   if (envUrl) {
     return {
@@ -260,7 +283,13 @@ export const getTileConfig = () => {
       maxZoom: 19,
     };
   }
-  return MAP_PROVIDERS.osm_standard;
+  const theme = getMapTheme(themeId);
+  return {
+    url: theme.tileUrl,
+    attribution: '&copy; OpenStreetMap & GIS contributors',
+    subdomains: theme.subdomains || 'abc',
+    maxZoom: 19,
+  };
 };
 
 export const getFallbackTileConfig = () => {

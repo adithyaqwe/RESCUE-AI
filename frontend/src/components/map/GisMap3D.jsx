@@ -55,6 +55,8 @@ export const GisMap3D = ({
   onSelectIncident,
   hasOpenDossier,
   onFallbackTo2D,
+  mapTheme = 'dark',
+  onSelectTheme,
 }) => {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -81,12 +83,172 @@ export const GisMap3D = ({
 
   const activeLayerCount = Object.values(layers).filter(Boolean).length;
 
+  const setupCustomLayers = useCallback((map) => {
+    try {
+      map.setLight({
+        anchor: 'map',
+        color: '#FFFFFF',
+        intensity: 0.75,
+        position: [1.15, 200, 35],
+      });
+    } catch {
+      // Handled
+    }
+
+    // ── 3D Building Extrusion & Light Architectural Colors ────────
+    try {
+      const mapStyle = map.getStyle();
+      const layersList = mapStyle?.layers || [];
+      let labelLayerId;
+
+      for (const lyr of layersList) {
+        if (lyr.type === 'symbol' && lyr.layout?.['text-field'] && !labelLayerId) {
+          labelLayerId = lyr.id;
+        }
+        // Override any dark/black native vector building layers to clean light architectural stone
+        if (lyr.id && lyr.id.toLowerCase().includes('building')) {
+          try {
+            if (lyr.type === 'fill') {
+              map.setPaintProperty(lyr.id, 'fill-color', '#E2E8F0');
+              map.setPaintProperty(lyr.id, 'fill-opacity', 0.7);
+            } else if (lyr.type === 'fill-extrusion') {
+              map.setPaintProperty(lyr.id, 'fill-extrusion-color', '#CBD5E1');
+              map.setPaintProperty(lyr.id, 'fill-extrusion-opacity', 0.82);
+            }
+          } catch {
+            // Handled
+          }
+        }
+      }
+
+      if (map.getSource('openmaptiles') && !map.getLayer('3d-buildings')) {
+        map.addLayer(
+          {
+            id: '3d-buildings',
+            source: 'openmaptiles',
+            'source-layer': 'building',
+            filter: ['!=', ['get', 'hide_3d'], true],
+            type: 'fill-extrusion',
+            minzoom: 13,
+            paint: {
+              'fill-extrusion-color': [
+                'interpolate',
+                ['linear'],
+                ['get', 'render_height'],
+                0, '#F1F5F9',   // ground level: crisp light slate
+                15, '#E2E8F0',  // medium: light silver stone
+                50, '#CBD5E1',  // tall: light architectural gray
+              ],
+              'fill-extrusion-height': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                13, 0,
+                14.5, ['coalesce', ['get', 'render_height'], ['get', 'height'], 8],
+              ],
+              'fill-extrusion-base': [
+                'coalesce',
+                ['get', 'render_min_height'],
+                ['get', 'min_height'],
+                0,
+              ],
+              'fill-extrusion-opacity': 0.82,
+              'fill-extrusion-vertical-gradient': false,
+            },
+          },
+          labelLayerId
+        );
+      }
+    } catch (bErr) {
+      console.warn('[GIS] Building layer note:', bErr);
+    }
+
+    // ── Terrain DEM ─────────────────────────────────────────────
+    try {
+      const demUrl = getTerrainDemUrl();
+      if (!map.getSource('terrain-source')) {
+        map.addSource('terrain-source', {
+          type: 'raster-dem',
+          url: demUrl,
+          tileSize: 256,
+        });
+        map.setTerrain({ source: 'terrain-source', exaggeration: 1.1 });
+      }
+    } catch (tErr) {
+      console.warn('[GIS] Terrain DEM note:', tErr);
+    }
+
+    // ── Road Route Layers ──────────────────────────────────────
+    if (!map.getSource('active-dispatch-route')) {
+      map.addSource('active-dispatch-route', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] },
+      });
+
+      // White casing for contrast over buildings
+      map.addLayer({
+        id: 'route-casing',
+        type: 'line',
+        source: 'active-dispatch-route',
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': '#FFFFFF',
+          'line-width': 7,
+          'line-opacity': 0.9,
+        },
+      });
+
+      // Core route
+      map.addLayer({
+        id: 'route-core',
+        type: 'line',
+        source: 'active-dispatch-route',
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': '#1A4A3C',
+          'line-width': 4,
+          'line-opacity': 1,
+        },
+      });
+
+      // Directional chevrons
+      map.addLayer({
+        id: 'route-chevrons',
+        type: 'line',
+        source: 'active-dispatch-route',
+        layout: {
+          'line-cap': 'butt',
+          'line-join': 'miter',
+        },
+        paint: {
+          'line-color': 'rgba(255,255,255,0.6)',
+          'line-width': 1.5,
+          'line-dasharray': [0.5, 6],
+        },
+      });
+    }
+  }, []);
+
+  const currentThemeRef = useRef(mapTheme);
+
+  // Dynamic style switching listener (runs only when mapTheme actually changes after mount)
+  useEffect(() => {
+    if (!mapRef.current || currentThemeRef.current === mapTheme) return;
+    currentThemeRef.current = mapTheme;
+    const styleObj = getStyleObjectOrUrl(mapTheme);
+    try {
+      mapRef.current.setStyle(styleObj);
+    } catch (e) {
+      console.warn('[GIS] Theme change warning:', e);
+    }
+  }, [mapTheme]);
+
   // ── 1. Initialize MapLibre ──────────────────────────────────────
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
     try {
-      const styleUrl = get3DMapStyleUrl();
+      const styleUrl = get3DMapStyleUrl(mapTheme);
 
       const map = new maplibregl.Map({
         container: containerRef.current,
@@ -118,139 +280,22 @@ export const GisMap3D = ({
       map.on('rotateend', () => setBearing(map.getBearing()));
       map.on('zoomend', () => setCurrentZoom(map.getZoom()));
 
-      map.on('load', () => {
-        // ── Natural daylight sun for Liberty topographic style ───────
-        try {
-          map.setLight({
-            anchor: 'map',
-            color: '#FFFFFF',
-            intensity: 0.75,
-            position: [1.15, 200, 35],
-          });
-        } catch {
-          // Older MapLibre versions may not support setLight
-        }
+      const handleMapReady = () => {
+        setupCustomLayers(map);
+        setIsMapReady(true);
+      };
 
-        // ── 3D Building Extrusion — Architectural Neutral Gray ────────
-        try {
-          const mapStyle = map.getStyle();
-          const layersList = mapStyle?.layers || [];
-          let labelLayerId;
-          for (const lyr of layersList) {
-            if (lyr.type === 'symbol' && lyr.layout?.['text-field']) {
-              labelLayerId = lyr.id;
-              break;
-            }
-          }
+      if (map.loaded()) {
+        handleMapReady();
+      } else {
+        map.once('load', handleMapReady);
+        // Safety timer to dismiss loading overlay if tiles load fast or load event was missed
+        const timer = setTimeout(handleMapReady, 700);
+        map.once('load', () => clearTimeout(timer));
+      }
 
-          if (map.getSource('openmaptiles') && !map.getLayer('3d-buildings')) {
-            map.addLayer(
-              {
-                id: '3d-buildings',
-                source: 'openmaptiles',
-                'source-layer': 'building',
-                filter: ['!=', ['get', 'hide_3d'], true],
-                type: 'fill-extrusion',
-                minzoom: 13,
-                paint: {
-                  'fill-extrusion-color': [
-                    'interpolate',
-                    ['linear'],
-                    ['get', 'render_height'],
-                    0, '#E4E7E1',   // ground level
-                    15, '#D5D9D1',   // medium
-                    50, '#C7CCC2',   // tall
-                  ],
-                  'fill-extrusion-height': [
-                    'interpolate',
-                    ['linear'],
-                    ['zoom'],
-                    13, 0,
-                    14.5, ['coalesce', ['get', 'render_height'], ['get', 'height'], 8],
-                  ],
-                  'fill-extrusion-base': [
-                    'coalesce',
-                    ['get', 'render_min_height'],
-                    ['get', 'min_height'],
-                    0,
-                  ],
-                  'fill-extrusion-opacity': 0.85,
-                  // Disable strong vertical gradient so sides don't go near-black
-                  'fill-extrusion-vertical-gradient': false,
-                },
-              },
-              labelLayerId
-            );
-          }
-        } catch (bErr) {
-          console.warn('[GIS] Building layer note:', bErr);
-        }
-
-        // ── Terrain DEM ─────────────────────────────────────────────
-        try {
-          const demUrl = getTerrainDemUrl();
-          if (!map.getSource('terrain-source')) {
-            map.addSource('terrain-source', {
-              type: 'raster-dem',
-              url: demUrl,
-              tileSize: 256,
-            });
-            map.setTerrain({ source: 'terrain-source', exaggeration: 1.1 });
-          }
-        } catch (tErr) {
-          console.warn('[GIS] Terrain DEM note:', tErr);
-        }
-
-        // ── Road Route Layers ──────────────────────────────────────
-        if (!map.getSource('active-dispatch-route')) {
-          map.addSource('active-dispatch-route', {
-            type: 'geojson',
-            data: { type: 'FeatureCollection', features: [] },
-          });
-
-          // White casing for contrast over buildings
-          map.addLayer({
-            id: 'route-casing',
-            type: 'line',
-            source: 'active-dispatch-route',
-            layout: { 'line-cap': 'round', 'line-join': 'round' },
-            paint: {
-              'line-color': '#FFFFFF',
-              'line-width': 7,
-              'line-opacity': 0.9,
-            },
-          });
-
-          // Core route: forest green, solid clean line
-          map.addLayer({
-            id: 'route-core',
-            type: 'line',
-            source: 'active-dispatch-route',
-            layout: { 'line-cap': 'round', 'line-join': 'round' },
-            paint: {
-              'line-color': '#1A4A3C',
-              'line-width': 4,
-              'line-opacity': 1,
-            },
-          });
-
-          // Directional chevrons (subtle dashes that imply direction)
-          map.addLayer({
-            id: 'route-chevrons',
-            type: 'line',
-            source: 'active-dispatch-route',
-            layout: {
-              'line-cap': 'butt',
-              'line-join': 'miter',
-            },
-            paint: {
-              'line-color': 'rgba(255,255,255,0.6)',
-              'line-width': 1.5,
-              'line-dasharray': [0.5, 6],
-            },
-          });
-        }
-
+      map.on('style.load', () => {
+        setupCustomLayers(map);
         setIsMapReady(true);
       });
 
@@ -724,6 +769,8 @@ export const GisMap3D = ({
         <MapLayersMenu
           layers={layers}
           onToggleLayer={key => setLayers(p => ({ ...p, [key]: !p[key] }))}
+          currentThemeId={mapTheme}
+          onSelectTheme={onSelectTheme}
           onClose={() => setShowLayersMenu(false)}
         />
       )}

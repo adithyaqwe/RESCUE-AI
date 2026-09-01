@@ -11,6 +11,7 @@ import {
 } from './mapUtils';
 import { MapControls } from './MapControls';
 import { MapLegend } from './MapLegend';
+import { MapLayersMenu } from './MapLayersMenu';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
 export const GisMap2D = ({
@@ -19,6 +20,8 @@ export const GisMap2D = ({
   selectedIncident,
   onSelectIncident,
   hasOpenDossier,
+  mapTheme = 'dark',
+  onSelectTheme,
 }) => {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -30,6 +33,23 @@ export const GisMap2D = ({
   const [isMapReady, setIsMapReady] = useState(false);
   const [showUnits, setShowUnits] = useState(true);
   const [showLegend, setShowLegend] = useState(false);
+  const [showLayersMenu, setShowLayersMenu] = useState(false);
+  const [layers, setLayers] = useState({
+    incidents: true,
+    units: true,
+    buildings: false,
+    terrain: false,
+    facilities: true,
+    routes: true,
+  });
+
+  // Dynamic Tile Theme Switcher Effect
+  useEffect(() => {
+    if (tileLayerRef.current) {
+      const tileConfig = getTileConfig(mapTheme);
+      tileLayerRef.current.setUrl(tileConfig.url);
+    }
+  }, [mapTheme]);
 
   // Initialize Real Leaflet Map
   useEffect(() => {
@@ -52,8 +72,8 @@ export const GisMap2D = ({
         })
         .addTo(map);
 
-      // Add Real Tile Layer (CartoDB Positron by default)
-      const tileConfig = getTileConfig();
+      // Add Real Tile Layer
+      const tileConfig = getTileConfig(mapTheme);
       const tiles = L.tileLayer(tileConfig.url, {
         subdomains: tileConfig.subdomains,
         maxZoom: tileConfig.maxZoom,
@@ -405,7 +425,20 @@ export const GisMap2D = ({
         showLegend={showLegend}
         onToggleLegend={() => setShowLegend(p => !p)}
         unitCount={responders?.length || 0}
+        showLayersMenu={showLayersMenu}
+        onToggleLayersMenu={() => setShowLayersMenu(p => !p)}
       />
+
+      {/* Map Layers & Theme Menu */}
+      {showLayersMenu && (
+        <MapLayersMenu
+          layers={layers}
+          onToggleLayer={key => setLayers(p => ({ ...p, [key]: !p[key] }))}
+          currentThemeId={mapTheme}
+          onSelectTheme={onSelectTheme}
+          onClose={() => setShowLayersMenu(false)}
+        />
+      )}
 
       {/* Map Legend */}
       {showLegend && <MapLegend onClose={() => setShowLegend(false)} />}

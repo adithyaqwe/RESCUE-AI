@@ -17,14 +17,38 @@ function isWebGLSupported() {
 
 export const RadarMap = (props) => {
   const [use2DFallback, setUse2DFallback] = useState(() => !isWebGLSupported());
+  const [mapTheme, setMapTheme] = useState(() => {
+    try {
+      return localStorage.getItem('rescue_ai_map_theme') || 'dark';
+    } catch {
+      return 'dark';
+    }
+  });
+
+  const handleSelectTheme = (themeId) => {
+    setMapTheme(themeId);
+    try {
+      localStorage.setItem('rescue_ai_map_theme', themeId);
+    } catch {
+      // Ignored if storage restricted
+    }
+  };
 
   if (use2DFallback) {
-    return <GisMap2D {...props} />;
+    return (
+      <GisMap2D
+        {...props}
+        mapTheme={mapTheme}
+        onSelectTheme={handleSelectTheme}
+      />
+    );
   }
 
   return (
     <GisMap3D
       {...props}
+      mapTheme={mapTheme}
+      onSelectTheme={handleSelectTheme}
       onFallbackTo2D={() => setUse2DFallback(true)}
     />
   );

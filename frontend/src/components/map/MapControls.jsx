@@ -1,5 +1,5 @@
 import React from 'react';
-import { ZoomIn, ZoomOut, RotateCcw, Layers, Info } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw, Layers, Info, Palette } from 'lucide-react';
 
 export const MapControls = ({
   onZoomIn,
@@ -10,9 +10,11 @@ export const MapControls = ({
   showLegend,
   onToggleLegend,
   unitCount,
+  showLayersMenu,
+  onToggleLayersMenu,
 }) => {
   return (
-    <div className="absolute top-3 right-3 z-[1000] flex items-center gap-2 pointer-events-auto">
+    <div className="absolute top-3 right-3 z-[1000] flex items-center gap-2 pointer-events-auto select-none">
       {/* Zoom & Recenter Controls */}
       <div className="flex items-center bg-[#FFFFFF] border border-[#E2E5DF] rounded p-0.5 shadow-xs">
         <button
@@ -67,6 +69,22 @@ export const MapControls = ({
         >
           <Info className="w-3.5 h-3.5" />
         </button>
+
+        {onToggleLayersMenu && (
+          <>
+            <div className="w-[1px] h-3.5 bg-[#E2E5DF] mx-0.5" />
+            <button
+              onClick={onToggleLayersMenu}
+              className={`p-1 rounded transition-colors cursor-pointer ${
+                showLayersMenu ? 'bg-[#19483A] text-white' : 'text-[#78828C] hover:text-[#111417]'
+              }`}
+              title="Change map color theme"
+              aria-label="Change map color theme"
+            >
+              <Palette className="w-3.5 h-3.5" />
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

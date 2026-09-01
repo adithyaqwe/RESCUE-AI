@@ -73,17 +73,17 @@ export const CallIntake = ({ onIncidentCreated }) => {
     <div className="max-w-3xl mx-auto space-y-6 select-none">
       {/* Page Title */}
       <div>
-        <h1 className="text-[28px] font-semibold text-[#111417] tracking-tight m-0">
+        <h1 className="text-[28px] font-semibold text-[#17201C] tracking-tight m-0">
           Emergency Call Intake
         </h1>
-        <p className="text-[13.5px] text-[#78828C] m-0 mt-1">
+        <p className="text-[13.5px] text-[#5D6862] m-0 mt-1">
           Record caller narrative, verify scene cross streets, and submit to CAD triage queue.
         </p>
       </div>
 
       {/* Preset Dispatch Templates */}
       <div>
-        <div className="text-[12.5px] font-medium text-[#475059] mb-2 uppercase tracking-wide">
+        <div className="text-[12.5px] font-medium text-[#5D6862] mb-2 uppercase tracking-wide">
           Standard incident presets:
         </div>
 
@@ -97,20 +97,15 @@ export const CallIntake = ({ onIncidentCreated }) => {
                 setAddress(p.addr);
                 setVictims(p.vics);
               }}
-              className="text-left p-3 rounded-md bg-[#FFFFFF] border border-[#E2E5DF] hover:border-[#19483A] hover:bg-[#F9FAF8] transition-all cursor-pointer shadow-2xs group"
+              className="text-left p-3 rounded-md bg-[#FFFFFF] border border-[#DDE2DD] hover:border-[#164E3D] hover:bg-[#F5F6F3] transition-all cursor-pointer shadow-2xs group"
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] font-medium text-[#78828C] uppercase tracking-wider">
-                  {p.category}
-                </span>
-                <span className="text-[11px] font-mono text-[#19483A] opacity-0 group-hover:opacity-100 transition-opacity">
-                  Apply template →
-                </span>
+              <div className="text-[11px] font-semibold text-[#164E3D] mb-0.5">
+                {p.category}
               </div>
-              <div className="text-[13.5px] font-semibold text-[#111417] mb-1">
+              <div className="text-[13.5px] font-semibold text-[#17201C] group-hover:text-[#164E3D] transition-colors mb-1">
                 {p.label}
               </div>
-              <div className="text-[12px] text-[#78828C] line-clamp-2">
+              <div className="text-[12px] text-[#5D6862] line-clamp-2">
                 {p.addr}
               </div>
             </button>
@@ -118,113 +113,82 @@ export const CallIntake = ({ onIncidentCreated }) => {
         </div>
       </div>
 
-      {/* Intake Entry Form */}
-      <form onSubmit={handleSubmit} className="bg-[#FFFFFF] border border-[#E2E5DF] rounded-md p-6 shadow-2xs space-y-5">
+      {/* Primary Intake Form */}
+      <form onSubmit={handleSubmit} className="bg-[#FFFFFF] border border-[#DDE2DD] rounded-md p-6 space-y-5 shadow-2xs">
         {errorMsg && (
-          <div className="p-3 rounded bg-[#FEF2F2] border border-[#FECACA] text-[#BA1A1A] text-[13px] flex items-center gap-2">
+          <div className="p-3 rounded bg-[#FFEBEE] border border-[#EF9A9A] text-[#C62828] text-[13px] flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>{errorMsg}</span>
           </div>
         )}
 
         {successMsg && (
-          <div className="p-3 rounded bg-[#F0FDF4] border border-[#BBF7D0] text-[#167A39] text-[13px] flex items-center gap-2">
+          <div className="p-3 rounded bg-[#E8F5E9] border border-[#C8E6C9] text-[#237A4B] text-[13px] flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
             <span>{successMsg}</span>
           </div>
         )}
 
-        {/* Narrative Input */}
+        {/* Narrative Transcript Area */}
         <div>
-          <label className="block text-[13px] font-semibold text-[#111417] mb-1">
-            Caller Report Narrative <span className="text-[#BA1A1A]">*</span>
+          <label className="block text-[13px] font-semibold text-[#17201C] mb-1.5">
+            Caller Report Narrative <span className="text-[#C62828]">*</span>
           </label>
-          <div className="text-[11.5px] text-[#78828C] mb-1.5">
-            Describe hazards, trapped individuals, vehicle involvements, and chemical conditions.
-          </div>
           <textarea
+            rows={4}
             value={description}
             onChange={e => setDescription(e.target.value)}
-            rows={4}
-            placeholder="e.g. Tanker collision on highway, two cars involved with fuel spill and driver trapped..."
-            className="w-full p-3 rounded bg-[#F6F7F5] border border-[#E2E5DF] text-[#111417] text-[13.5px] outline-none focus:border-[#19483A] focus:bg-[#FFFFFF] transition-colors resize-none placeholder-[#9CA3AF]"
+            placeholder="Type or paste caller transcript (e.g. 'Chemical solvent drum explosion in Makarpura GIDC Phase II with dense smoke...')"
+            className="w-full p-3 rounded bg-[#F5F6F3] border border-[#DDE2DD] focus:border-[#164E3D] text-[13.5px] text-[#17201C] placeholder-[#7B847F] outline-none transition-colors leading-relaxed"
           />
         </div>
 
-        {/* Address Input */}
+        {/* Scene Location Entry */}
         <div>
-          <label className="block text-[13px] font-semibold text-[#111417] mb-1">
-            Scene Cross Streets / Location <span className="text-[#BA1A1A]">*</span>
+          <label className="block text-[13px] font-semibold text-[#17201C] mb-1.5">
+            Scene Location / Cross Streets <span className="text-[#C62828]">*</span>
           </label>
-          <div className="text-[11.5px] text-[#78828C] mb-1.5">
-            Provide street name, landmark, or intersection in Vadodara metropolitan area.
-          </div>
           <input
             type="text"
             value={address}
             onChange={e => setAddress(e.target.value)}
-            placeholder="e.g. Waghodia Cross Road, NH 48 Bypass, Vadodara"
-            className="w-full p-2.5 rounded bg-[#F6F7F5] border border-[#E2E5DF] text-[#111417] text-[13.5px] outline-none focus:border-[#19483A] focus:bg-[#FFFFFF] transition-colors placeholder-[#9CA3AF]"
+            placeholder="e.g. Makarpura GIDC Industrial Estate Phase II, Vadodara"
+            className="w-full p-2.5 rounded bg-[#F5F6F3] border border-[#DDE2DD] focus:border-[#164E3D] text-[13.5px] text-[#17201C] placeholder-[#7B847F] outline-none transition-colors"
           />
         </div>
 
-        {/* Casualties Stepper */}
+        {/* Casualties Selector */}
         <div>
-          <label className="block text-[13px] font-semibold text-[#111417] mb-1">
-            Estimated Casualties / Injured
+          <label className="block text-[13px] font-semibold text-[#17201C] mb-1.5">
+            Reported Casualties / Victims
           </label>
           <div className="flex items-center gap-3">
-            <div className="flex items-center border border-[#E2E5DF] rounded bg-[#F6F7F5]">
+            {[0, 1, 2, 3, 4, 5].map(n => (
               <button
+                key={n}
                 type="button"
-                onClick={() => setVictims(Math.max(0, victims - 1))}
-                className="w-9 h-9 flex items-center justify-center text-[#475059] hover:bg-[#E8EBE6] font-mono text-[16px] cursor-pointer"
+                onClick={() => setVictims(n)}
+                className={`w-10 h-9 rounded font-medium text-[13px] transition-colors cursor-pointer ${
+                  victims === n
+                    ? 'bg-[#164E3D] text-white font-bold'
+                    : 'bg-[#F5F6F3] text-[#5D6862] hover:bg-[#E6EAE5]'
+                }`}
               >
-                -
+                {n}
               </button>
-              <span className="w-12 text-center font-mono font-semibold text-[14px] text-[#111417]">
-                {victims}
-              </span>
-              <button
-                type="button"
-                onClick={() => setVictims(victims + 1)}
-                className="w-9 h-9 flex items-center justify-center text-[#475059] hover:bg-[#E8EBE6] font-mono text-[16px] cursor-pointer"
-              >
-                +
-              </button>
-            </div>
-            <span className="text-[12.5px] text-[#78828C]">
-              {victims === 0
-                ? 'No immediate casualties reported'
-                : victims === 1
-                ? '1 person requires medical triage'
-                : `${victims} persons require immediate EMS response`}
-            </span>
+            ))}
           </div>
         </div>
 
-        {/* Form Actions */}
-        <div className="pt-2 flex items-center justify-end gap-3 border-t border-[#E2E5DF]">
-          <button
-            type="button"
-            onClick={() => {
-              setDescription('');
-              setAddress('');
-              setVictims(0);
-              setErrorMsg('');
-            }}
-            className="px-4 py-2 rounded text-[13px] font-medium text-[#475059] hover:text-[#111417] hover:bg-[#F0F2EE] transition-colors cursor-pointer"
-          >
-            Clear Form
-          </button>
-
+        {/* Action Button */}
+        <div className="pt-3 border-t border-[#DDE2DD] flex justify-end">
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-5 py-2.5 rounded bg-[#19483A] text-white text-[13.5px] font-semibold hover:bg-[#13392E] transition-colors cursor-pointer shadow-xs flex items-center gap-2 disabled:opacity-50"
+            className="px-5 py-2.5 rounded bg-[#164E3D] text-white text-[13.5px] font-semibold hover:bg-[#0F392D] transition-colors cursor-pointer flex items-center gap-2 disabled:opacity-50"
           >
-            <Send className="w-3.5 h-3.5" />
-            <span>{isSubmitting ? 'Logging Emergency Call...' : 'Queue Emergency Call'}</span>
+            <Send className="w-4 h-4" />
+            <span>{isSubmitting ? 'Submitting Call Intake...' : 'Submit Call to CAD Triage Queue'}</span>
           </button>
         </div>
       </form>

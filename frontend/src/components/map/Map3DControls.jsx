@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Minus, Layers, Compass, ChevronUp, ChevronDown, Home } from 'lucide-react';
+import { Plus, Minus, Layers, Compass, ChevronUp, ChevronDown, Home, Palette } from 'lucide-react';
 
 /**
  * Compact, professional GIS control group.
@@ -127,18 +127,18 @@ export const Map3DControls = ({
         </button>
       </div>
 
-      {/* Layers toggle */}
+      {/* Theme & Layers toggle button */}
       <button
         onClick={onToggleLayersMenu}
         className={`w-8 h-8 flex items-center justify-center rounded border shadow-sm text-[11px] transition-colors cursor-pointer ${
           showLayersMenu
-            ? 'bg-[#F0F1F2] text-[#0A0B0C] border-[#F0F1F2]'
+            ? 'bg-[#38BDF8] text-[#0A0B0C] border-[#38BDF8]'
             : 'bg-[#191C1F] text-[#6B7280] border-[#2A2D31] hover:text-[#F0F1F2] hover:bg-[#212529]'
         }`}
-        title={`Map layers (${activeLayerCount} active)`}
-        aria-label="Toggle layers menu"
+        title={`Change map color theme & layers (${activeLayerCount} active)`}
+        aria-label="Toggle map theme & layers menu"
       >
-        <Layers className="w-3.5 h-3.5" />
+        <Palette className="w-3.5 h-3.5" />
       </button>
     </div>
   );

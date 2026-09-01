@@ -12,7 +12,6 @@ import { ToastNotification } from './components/ToastNotification';
 import { FleetMonitor } from './components/FleetMonitor';
 import { AiAssistant } from './components/AiAssistant';
 import { SystemLogs } from './components/SystemLogs';
-import { StatusBar } from './components/StatusBar';
 import { MouseLight } from './components/MouseLight';
 import { CustomCursor } from './components/CustomCursor';
 
@@ -25,15 +24,15 @@ function DualClock() {
   }, []);
 
   return (
-    <div className="text-[12px] flex items-center gap-3 text-[#6B7280] select-none">
+    <div className="text-[12px] flex items-center gap-3 text-[#5D6862] select-none">
       <div>
-        <span className="text-[#F0F1F2] font-semibold font-mono">
+        <span className="text-[#17201C] font-semibold font-mono">
           {time.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: false })}
         </span>
-        <span className="text-[#6B7280] text-[11px] ml-1">IST</span>
+        <span className="text-[#5D6862] text-[11px] ml-1">IST</span>
       </div>
-      <div className="border-l border-[#2A2D31] pl-3 hidden sm:block">
-        <span className="font-mono text-[#6B7280]">
+      <div className="border-l border-[#DDE2DD] pl-3 hidden sm:block">
+        <span className="font-mono text-[#5D6862]">
           {time.toISOString().substring(11, 19)}Z
         </span>
       </div>
@@ -128,7 +127,6 @@ export function App() {
       socket.disconnect();
     };
   }, [addLog, loadInitialData]);
-
 
   // Keyboard Shortcuts
   useEffect(() => {
@@ -295,7 +293,7 @@ export function App() {
               </div>
 
               {/* Center Panel: True Municipal 3D GIS Cartography Workspace */}
-              <div className="flex-1 h-full min-w-0 relative p-2 bg-[#0A0B0C]">
+              <div className="flex-1 h-full min-w-0 relative p-2 bg-[#F5F6F3]">
                 <RadarMap
                   incidents={incidents}
                   responders={responders}
@@ -308,7 +306,7 @@ export function App() {
 
               {/* Right: Dispatch Dossier */}
               {currentSelectedIncident && (
-                <aside className="w-[400px] xl:w-[440px] shrink-0 h-full z-20 border-l border-[#2A2D31]">
+                <aside className="w-[400px] xl:w-[440px] shrink-0 h-full z-20 border-l border-[#DDE2DD]">
                   <IncidentControl
                     selectedIncident={currentSelectedIncident}
                     onClearSelection={() => setSelectedIncidentId(null)}
@@ -322,7 +320,7 @@ export function App() {
 
           {/* VIEW 2: NEW CALL INTAKE */}
           {activeView === 'intake' && (
-            <div className="flex-1 p-8 pb-16 overflow-y-auto bg-[#0A0B0C]">
+            <div className="flex-1 p-8 pb-16 overflow-y-auto bg-[#F5F6F3]">
               <CallIntake
                 onIncidentCreated={incidentId => {
                   setSelectedIncidentId(incidentId);
@@ -334,25 +332,25 @@ export function App() {
 
           {/* VIEW 3: APPARATUS FLEET ROSTER */}
           {activeView === 'fleet' && (
-            <div className="flex-1 p-6 pb-16 overflow-y-auto bg-[#0A0B0C]">
+            <div className="flex-1 p-6 pb-16 overflow-y-auto bg-[#F5F6F3]">
               <FleetMonitor responders={responders} />
             </div>
           )}
 
           {/* VIEW 4: INCIDENT ARCHIVE */}
           {activeView === 'archive' && (
-            <div className="flex-1 p-6 pb-16 overflow-y-auto bg-[#0A0B0C]">
-              <div className="max-w-6xl mx-auto bg-[#111316] border border-[#2A2D31] rounded p-6">
-                <div className="flex items-center justify-between mb-5 pb-3 border-b border-[#E2E5DF]">
+            <div className="flex-1 p-6 pb-16 overflow-y-auto bg-[#F5F6F3]">
+              <div className="max-w-6xl mx-auto bg-[#FFFFFF] border border-[#DDE2DD] rounded p-6 shadow-2xs">
+                <div className="flex items-center justify-between mb-5 pb-3 border-b border-[#DDE2DD]">
                   <div>
-                    <h2 className="text-[20px] font-semibold text-[#111417] m-0">
+                    <h2 className="text-[20px] font-semibold text-[#17201C] m-0">
                       Emergency Call Archive
                     </h2>
-                    <p className="text-[13px] text-[#78828C] m-0 mt-0.5">
+                    <p className="text-[13px] text-[#5D6862] m-0 mt-0.5">
                       Historical log of all dispatched and resolved municipal incidents
                     </p>
                   </div>
-                  <span className="text-[12px] font-medium px-2.5 py-0.5 rounded bg-[#F0F2EE] text-[#475059]">
+                  <span className="text-[12px] font-medium px-2.5 py-0.5 rounded bg-[#F0F2EF] text-[#5D6862]">
                     {incidents.length} logged
                   </span>
                 </div>
@@ -360,7 +358,7 @@ export function App() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-[13px] border-collapse">
                     <thead>
-                      <tr className="border-b border-[#E2E5DF] text-[11.5px] text-[#78828C] font-semibold uppercase tracking-wider">
+                      <tr className="border-b border-[#DDE2DD] text-[11.5px] text-[#5D6862] font-semibold uppercase tracking-wider">
                         <th className="py-2.5 px-3">Case</th>
                         <th className="py-2.5 px-3">Type</th>
                         <th className="py-2.5 px-3">Priority</th>
@@ -374,43 +372,43 @@ export function App() {
                     </thead>
                     <tbody>
                       {incidents.map(inc => (
-                        <tr key={inc._id} className="border-b border-[#EAECE8] hover:bg-[#F9FAF8] transition-colors">
-                          <td className="py-2.5 px-3 font-mono font-semibold text-[#111417]">#{inc.incidentId}</td>
-                          <td className="py-2.5 px-3 text-[#111417] font-medium">{inc.type}</td>
+                        <tr key={inc._id} className="border-b border-[#E6EAE5] hover:bg-[#F5F6F3] transition-colors">
+                          <td className="py-2.5 px-3 font-mono font-semibold text-[#17201C]">#{inc.incidentId}</td>
+                          <td className="py-2.5 px-3 text-[#17201C] font-medium">{inc.type}</td>
                           <td className="py-2.5 px-3">
                             <div className="flex items-center gap-1.5">
                               <span
                                 className="w-2 h-2 rounded-full"
                                 style={{
-                                  background: inc.priority === 'CRITICAL' ? '#BA1A1A' : inc.priority === 'HIGH' ? '#B45309' : '#1D4ED8',
+                                  background: inc.priority === 'CRITICAL' ? '#C62828' : inc.priority === 'HIGH' ? '#B8620A' : '#2864C7',
                                 }}
                               />
-                              <span className="text-[#475059] font-medium text-[12px]">
+                              <span className="text-[#5D6862] font-medium text-[12px]">
                                 {inc.priority === 'CRITICAL' ? 'Critical' : inc.priority === 'HIGH' ? 'High' : 'Standard'}
                               </span>
                             </div>
                           </td>
-                          <td className="py-2.5 px-3 text-[#475059]">{inc.status}</td>
-                          <td className="py-2.5 px-3 text-[#475059] max-w-xs truncate">{inc.location?.address}</td>
+                          <td className="py-2.5 px-3 text-[#5D6862]">{inc.status}</td>
+                          <td className="py-2.5 px-3 text-[#5D6862] max-w-xs truncate">{inc.location?.address}</td>
                           <td className="py-2.5 px-3">
                             {inc.victimsCount > 0 ? (
-                              <span className="text-[#BA1A1A] font-semibold">{inc.victimsCount} casualties</span>
+                              <span className="text-[#C62828] font-semibold">{inc.victimsCount} casualties</span>
                             ) : (
-                              <span className="text-[#167A39]">None</span>
+                              <span className="text-[#237A4B]">None</span>
                             )}
                           </td>
                           <td className="py-2.5 px-3">
                             {inc.status === 'RESOLVED' && inc.responseTimeMs ? (
-                              <span className="text-[#167A39] font-semibold font-mono">
+                              <span className="text-[#237A4B] font-semibold font-mono">
                                 {(inc.responseTimeMs / 60000).toFixed(1)}m
                               </span>
                             ) : inc.estimatedArrival ? (
-                              <span className="text-[#B45309] font-mono font-medium">ETA ~{inc.estimatedArrival}m</span>
+                              <span className="text-[#B8620A] font-mono font-medium">ETA ~{inc.estimatedArrival}m</span>
                             ) : (
-                              <span className="text-[#78828C]">Pending</span>
+                              <span className="text-[#7B847F]">Pending</span>
                             )}
                           </td>
-                          <td className="py-2.5 px-3 text-[#78828C] font-mono text-[11.5px]">
+                          <td className="py-2.5 px-3 text-[#7B847F] font-mono text-[11.5px]">
                             {new Date(inc.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
                           </td>
                           <td className="py-2.5 px-3">
@@ -419,7 +417,7 @@ export function App() {
                                 setSelectedIncidentId(inc.incidentId);
                                 setActiveView('hud');
                               }}
-                              className="px-2.5 py-1 rounded text-[12px] font-medium text-[#19483A] bg-[#EDF3F0] hover:bg-[#19483A] hover:text-white transition-colors cursor-pointer"
+                              className="px-2.5 py-1 rounded text-[12px] font-medium text-[#164E3D] bg-[#E8F0EC] hover:bg-[#164E3D] hover:text-white transition-colors cursor-pointer"
                             >
                               Inspect
                             </button>
@@ -435,7 +433,7 @@ export function App() {
 
           {/* VIEW 5: DISPATCH ASSISTANT & LOGS */}
           {activeView === 'comms' && (
-            <div className="flex-1 p-5 grid grid-cols-1 lg:grid-cols-2 gap-4 bg-[#0A0B0C] min-h-0 overflow-hidden">
+            <div className="flex-1 p-5 grid grid-cols-1 lg:grid-cols-2 gap-4 bg-[#F5F6F3] min-h-0 overflow-hidden">
               <SystemLogs logs={logs} onClearLogs={() => setLogs([])} />
               <AiAssistant />
             </div>
