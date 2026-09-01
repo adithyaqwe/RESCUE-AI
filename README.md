@@ -299,8 +299,3 @@ Every dispatch transaction, unit assignment, and status transition is recorded i
 - `text`: Human-readable CAD dispatch log event payload.
 
 Dispatch logs can be inspected live via the **System Event Stream** tab or cleared by authorized operators.
-
----
-
-## 📄 License
-Distributed under the **MIT License**.
